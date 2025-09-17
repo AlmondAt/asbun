@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IngrediFren - Analisis Cerdas Kandungan Produk</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="container">
+            <div class="nav">
+                <div class="logo">
+                    <i class="fas fa-search-plus"></i>
+                    <span>IngrediFren</span>
+                </div>
+                <nav class="nav-menu">
+                    <a href="#home" class="nav-link active">Beranda</a>
+                    <a href="#scanner" class="nav-link">Scanner</a>
+                    <a href="#profile" class="nav-link">Profil</a>
+                    <a href="#about" class="nav-link">Tentang</a>
+                </nav>
+                <button class="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1 class="hero-title">Analisis Cerdas Kandungan Produk</h1>
+                    <p class="hero-subtitle">Pindai label produk makanan, minuman, dan skincare untuk mengetahui kandungan yang aman untuk Anda dengan teknologi OCR canggih dan database komprehensif.</p>
+                    <div class="hero-features">
+                        <div class="feature-item">
+                            <i class="fas fa-camera"></i>
+                            <span>Pindai Foto</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Analisis Keamanan</span>
+                        </div>
+                        <div class="feature-item">
+                            <i class="fas fa-user-cog"></i>
+                            <span>Personal</span>
+                        </div>
+                    </div>
+                    <button class="cta-button" onclick="scrollToScanner()">
+                        <i class="fas fa-camera"></i>
+                        Mulai Pindai Sekarang
+                    </button>
+                </div>
+                <div class="hero-visual">
+                    <div class="hero-demo">
+                        <i class="fas fa-mobile-alt" style="font-size: 4rem; margin-bottom: 1rem; color: rgba(255,255,255,0.8);"></i>
+                        <h3>Scan & Analyze</h3>
+                        <p>Upload foto label produk dan dapatkan analisis lengkap dalam hitungan detik</p>
+                        <div style="display: flex; justify-content: center; gap: 1rem; margin-top: 1rem;">
+                            <i class="fas fa-check-circle" style="color: #10b981;"></i>
+                            <i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i>
+                            <i class="fas fa-times-circle" style="color: #ef4444;"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Scanner Section -->
+    <section id="scanner" class="scanner-section">
+        <div class="container">
+            <h2 class="section-title">Pemindai Cerdas</h2>
+            <div class="scanner-container">
+                <div class="scanner-left">
+                    <div class="scanner-features">
+                        <div class="scanner-feature">
+                            <i class="fas fa-eye"></i>
+                            <h4>OCR Canggih</h4>
+                            <p>Membaca teks dari gambar dengan akurasi tinggi</p>
+                        </div>
+                        <div class="scanner-feature">
+                            <i class="fas fa-database"></i>
+                            <h4>Database Lengkap</h4>
+                            <p>Ribuan bahan dengan informasi detail</p>
+                        </div>
+                        <div class="scanner-feature">
+                            <i class="fas fa-shield-alt"></i>
+                            <h4>Analisis Keamanan</h4>
+                            <p>Penilaian risiko berdasarkan profil Anda</p>
+                        </div>
+                        <div class="scanner-feature">
+                            <i class="fas fa-lightning-bolt"></i>
+                            <h4>Hasil Instan</h4>
+                            <p>Analisis cepat dalam hitungan detik</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="scanner-right">
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-content">
+                            <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                            <h3>Unggah Foto Label Produk</h3>
+                            <p>Klik untuk memilih foto atau seret & lepas file di sini</p>
+                            <p class="upload-note">Format: JPG, PNG, JPEG (Max: 10MB)</p>
+                            <input type="file" id="fileInput" accept="image/*" capture="environment">
+                        </div>
+                    </div>
+                    
+                    <div class="upload-buttons">
+                        <button class="upload-btn" onclick="document.getElementById('fileInput').click()">
+                            <i class="fas fa-folder-open"></i>
+                            Pilih Dari Galeri
+                        </button>
+                        <button class="camera-btn" onclick="openCamera()">
+                            <i class="fas fa-camera"></i>
+                            Ambil Foto
+                        </button>
+                    </div>
+
+                    <div class="preview-container" id="previewContainer" style="display: none;">
+                        <img id="imagePreview" src="" alt="Preview">
+                        <div class="preview-actions">
+                            <button class="analyze-btn" onclick="analyzeImage()">
+                                <i class="fas fa-search"></i>
+                                Analisis Sekarang
+                            </button>
+                            <button class="remove-btn" onclick="removeImage()">
+                                <i class="fas fa-trash"></i>
+                                Hapus
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="loading-container" id="loadingContainer" style="display: none;">
+                        <div class="loading-spinner"></div>
+                        <p>Menganalisis kandungan produk...</p>
+                        <div class="loading-steps">
+                            <div class="step active">Membaca teks dari gambar</div>
+                            <div class="step">Mengidentifikasi bahan-bahan</div>
+                            <div class="step">Menganalisis keamanan</div>
+                            <div class="step">Menyiapkan hasil</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Results Section -->
+    <section id="results" class="results-section" style="display: none;">
+        <div class="container">
+            <h2 class="section-title">Hasil Analisis</h2>
+            
+            <div class="results-container">
+                <div class="results-main">
+                    <!-- Overall Summary -->
+                    <div class="result-summary" id="resultSummary">
+                        <div class="summary-card">
+                            <div class="summary-icon">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="summary-content">
+                                <h3 class="summary-title">Produk ini aman untuk Anda!</h3>
+                                <p class="summary-description">Tidak ditemukan bahan yang bertentangan dengan profil kesehatan Anda.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Warnings -->
+                    <div class="warnings-section" id="warningsSection">
+                        <h3 class="subsection-title">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Peringatan Khusus
+                        </h3>
+                        <div class="warnings-list" id="warningsList">
+                            <!-- Warnings will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="results-sidebar">
+                    <!-- Recommendations -->
+                    <div class="recommendations-section" id="recommendationsSection">
+                        <h3 class="subsection-title">
+                            <i class="fas fa-lightbulb"></i>
+                            Saran & Alternatif
+                        </h3>
+                        <div class="recommendations-list" id="recommendationsList">
+                            <!-- Recommendations will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ingredient List -->
+            <div class="ingredients-section">
+                <h3 class="subsection-title">
+                    <i class="fas fa-list"></i>
+                    Daftar Lengkap Bahan
+                </h3>
+                <div class="ingredients-list" id="ingredientsList">
+                    <!-- Ingredients will be populated by JavaScript -->
+                </div>
+            </div>
+
+            <div class="result-actions">
+                <button class="scan-again-btn" onclick="scanAgain()">
+                    <i class="fas fa-camera"></i>
+                    Pindai Produk Lain
+                </button>
+                <button class="save-result-btn" onclick="saveResult()">
+                    <i class="fas fa-bookmark"></i>
+                    Simpan Hasil
+                </button>
+                <button class="share-result-btn" onclick="shareResult()">
+                    <i class="fas fa-share"></i>
+                    Bagikan
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Profile Section -->
+    <section id="profile" class="profile-section">
+        <div class="container">
+            <h2 class="section-title">Profil Kesehatan</h2>
+            <p class="section-subtitle">Sesuaikan profil Anda untuk mendapatkan analisis yang lebih personal</p>
+            
+            <div class="profile-container">
+                <div class="profile-sidebar">
+                    <div class="profile-tabs">
+                        <button class="tab-btn active" data-tab="allergies">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <span>Alergi & Intoleransi</span>
+                        </button>
+                        <button class="tab-btn" data-tab="health">
+                            <i class="fas fa-heartbeat"></i>
+                            <span>Kondisi Kesehatan</span>
+                        </button>
+                        <button class="tab-btn" data-tab="diet">
+                            <i class="fas fa-leaf"></i>
+                            <span>Preferensi Diet</span>
+                        </button>
+                        <button class="tab-btn" data-tab="skincare">
+                            <i class="fas fa-spa"></i>
+                            <span>Skincare & Kulit</span>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="profile-main">
+                    <div class="profile-content">
+                        <!-- Allergies Tab -->
+                        <div class="tab-content active" id="allergies">
+                            <h3><i class="fas fa-exclamation-circle"></i> Alergi & Intoleransi</h3>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="nuts">
+                                    <span class="checkmark"></span>
+                                    <span>Kacang-kacangan</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="dairy">
+                                    <span class="checkmark"></span>
+                                    <span>Susu & Produk Dairy</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="eggs">
+                                    <span class="checkmark"></span>
+                                    <span>Telur</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="seafood">
+                                    <span class="checkmark"></span>
+                                    <span>Seafood & Ikan</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="gluten">
+                                    <span class="checkmark"></span>
+                                    <span>Gluten & Gandum</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="allergies" value="soy">
+                                    <span class="checkmark"></span>
+                                    <span>Kedelai</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Health Tab -->
+                        <div class="tab-content" id="health">
+                            <h3><i class="fas fa-heartbeat"></i> Kondisi Kesehatan</h3>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="diabetes">
+                                    <span class="checkmark"></span>
+                                    <span>Diabetes</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="hypertension">
+                                    <span class="checkmark"></span>
+                                    <span>Hipertensi</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="heart">
+                                    <span class="checkmark"></span>
+                                    <span>Penyakit Jantung</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="kidney">
+                                    <span class="checkmark"></span>
+                                    <span>Gangguan Ginjal</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="pregnant">
+                                    <span class="checkmark"></span>
+                                    <span>Hamil</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="health" value="breastfeeding">
+                                    <span class="checkmark"></span>
+                                    <span>Menyusui</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Diet Tab -->
+                        <div class="tab-content" id="diet">
+                            <h3><i class="fas fa-leaf"></i> Preferensi Diet</h3>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="halal">
+                                    <span class="checkmark"></span>
+                                    <span>Halal</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="vegan">
+                                    <span class="checkmark"></span>
+                                    <span>Vegan</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="vegetarian">
+                                    <span class="checkmark"></span>
+                                    <span>Vegetarian</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="kosher">
+                                    <span class="checkmark"></span>
+                                    <span>Kosher</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="lowsugar">
+                                    <span class="checkmark"></span>
+                                    <span>Rendah Gula</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="diet" value="lowsodium">
+                                    <span class="checkmark"></span>
+                                    <span>Rendah Garam</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Skincare Tab -->
+                        <div class="tab-content" id="skincare">
+                            <h3><i class="fas fa-spa"></i> Tipe Kulit & Preferensi</h3>
+                            <div class="form-group">
+                                <label>Tipe Kulit:</label>
+                                <select name="skinType" id="skinType">
+                                    <option value="">Pilih tipe kulit</option>
+                                    <option value="oily">Berminyak</option>
+                                    <option value="dry">Kering</option>
+                                    <option value="combination">Kombinasi</option>
+                                    <option value="sensitive">Sensitif</option>
+                                    <option value="acne">Berjerawat</option>
+                                </select>
+                            </div>
+                            <div class="checkbox-grid">
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="skincare" value="paraben-free">
+                                    <span class="checkmark"></span>
+                                    <span>Bebas Paraben</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="skincare" value="sulfate-free">
+                                    <span class="checkmark"></span>
+                                    <span>Bebas Sulfat</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="skincare" value="fragrance-free">
+                                    <span class="checkmark"></span>
+                                    <span>Bebas Pewangi</span>
+                                </label>
+                                <label class="checkbox-item">
+                                    <input type="checkbox" name="skincare" value="alcohol-free">
+                                    <span class="checkmark"></span>
+                                    <span>Bebas Alkohol</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-actions">
+                <button class="save-profile-btn" onclick="saveProfile()">
+                    <i class="fas fa-save"></i>
+                    Simpan Profil
+                </button>
+                <button class="reset-profile-btn" onclick="resetProfile()">
+                    <i class="fas fa-undo"></i>
+                    Reset
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about-section">
+        <div class="container">
+            <h2 class="section-title">Tentang IngrediFren</h2>
+            
+            <div class="about-container">
+                <div class="about-text">
+                    <p>IngrediFren adalah platform analisis cerdas yang membantu Anda memahami kandungan produk makanan, minuman, dan skincare dengan mudah dan akurat menggunakan teknologi OCR canggih.</p>
+                    
+                    <div class="about-stats">
+                        <div class="stat-item">
+                            <div class="stat-number">1000+</div>
+                            <div class="stat-label">Bahan Teranalisis</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">95%</div>
+                            <div class="stat-label">Akurasi OCR</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">50+</div>
+                            <div class="stat-label">Kategori Alergen</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">24/7</div>
+                            <div class="stat-label">Tersedia Online</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="about-visual">
+                    <i class="fas fa-microscope" style="font-size: 5rem; color: var(--primary-color); margin-bottom: 2rem;"></i>
+                    <h3 style="margin-bottom: 1rem; color: var(--gray-800);">Analisis Mendalam</h3>
+                    <p style="color: var(--gray-600);">Setiap bahan dianalisis berdasarkan database yang komprehensif dan terus diperbarui oleh para ahli.</p>
+                </div>
+            </div>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fas fa-eye"></i>
+                    <h4>OCR Canggih</h4>
+                    <p>Teknologi pengenalan teks otomatis untuk membaca label produk dengan akurasi tinggi</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-database"></i>
+                    <h4>Database Lengkap</h4>
+                    <p>Informasi komprehensif tentang ribuan bahan dan kandungan dari berbagai sumber terpercaya</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-user-shield"></i>
+                    <h4>Analisis Personal</h4>
+                    <p>Rekomendasi yang disesuaikan dengan profil kesehatan, alergi, dan preferensi diet Anda</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h4>Multi-Platform</h4>
+                    <p>Dapat diakses dengan sempurna di desktop, tablet, dan smartphone dengan desain responsif</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <i class="fas fa-search-plus"></i>
+                        <span>IngrediFren</span>
+                    </div>
+                    <p>Membantu Anda membuat pilihan yang lebih sehat dan aman dalam setiap produk yang Anda gunakan.</p>
+                </div>
+                <div class="footer-section">
+                    <h4>Fitur</h4>
+                    <ul>
+                        <li><a href="#scanner">Scanner Cerdas</a></li>
+                        <li><a href="#profile">Profil Kesehatan</a></li>
+                        <li><a href="#results">Analisis Lengkap</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>Kontak</h4>
+                    <ul>
+                        <li><i class="fas fa-envelope"></i> info@ingredifren.com</li>
+                        <li><i class="fas fa-phone"></i> +62 21 1234 5678</li>
+                        <li><i class="fas fa-map-marker-alt"></i> Jakarta, Indonesia</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 IngrediFren. Semua hak cipta dilindungi.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="js/ingredients-database.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/demo.js"></script>
+</body>
+</html>
