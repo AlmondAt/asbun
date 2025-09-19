@@ -1,3 +1,34 @@
+/* Highlight status gizi pada ingredient-item */
+.ingredient-status.safe {
+    color: var(--success-color);
+    background: #e6f9ed;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.ingredient-status.caution {
+    color: var(--warning-color);
+    background: #fff7e6;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+.ingredient-status.avoid {
+    color: var(--danger-color);
+    background: #ffe6e6;
+    border-radius: 6px;
+    padding: 2px 10px;
+    font-weight: 600;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
 /* Reset and Base Styles */
 * {
     margin: 0;

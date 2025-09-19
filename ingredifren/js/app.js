@@ -23,7 +23,9 @@ const resultsSection = document.getElementById('results');
 // Initialize Application
 document.addEventListener('DOMContentLoaded', function() {
     initializeApp();
+        // fetchAndRenderLogHarian();
 });
+// Fungsi ambil dan tampilkan log harian
 
 function initializeApp() {
     setupEventListeners();
@@ -182,6 +184,8 @@ function processFile(file) {
         imagePreview.src = e.target.result;
         uploadArea.style.display = 'none';
         previewContainer.style.display = 'block';
+        // Otomatis analisis setelah gambar dipilih
+        analyzeImage();
     };
     reader.readAsDataURL(file);
 }
@@ -200,26 +204,7 @@ function openCamera() {
     fileInput.click();
 }
 
-// OCR Simulation (In real app, this would call actual OCR service)
-function simulateOCR() {
-    // Simulate ingredient lists for different product types
-    const sampleIngredients = [
-        // Makanan ringan
-        ['wheat flour', 'sugar', 'palm oil', 'salt', 'sodium benzoate', 'red 40'],
-        // Minuman
-        ['water', 'high fructose corn syrup', 'citric acid', 'natural flavors', 'caffeine', 'sodium benzoate'],
-        // Skincare
-        ['water', 'hyaluronic acid', 'glycerin', 'sodium lauryl sulfate', 'paraben', 'fragrance'],
-        // Produk dairy
-        ['milk', 'sugar', 'cream', 'stabilizers', 'natural flavors'],
-        // Produk dengan kacang
-        ['peanuts', 'sugar', 'salt', 'palm oil', 'natural flavors']
-    ];
-    
-    // Random selection for demo
-    const randomIndex = Math.floor(Math.random() * sampleIngredients.length);
-    return sampleIngredients[randomIndex];
-}
+
 
 // Analysis Functions
 function analyzeImage() {
@@ -227,44 +212,135 @@ function analyzeImage() {
         showAlert('Silakan pilih gambar terlebih dahulu', 'error');
         return;
     }
-    
     // Hide preview, show loading
     previewContainer.style.display = 'none';
     loadingContainer.style.display = 'block';
-    
-    // Simulate analysis steps
-    simulateAnalysisSteps();
+    // Ambil data bahan/nutrisi dari backend AKG
+    fetchIngredientsFromBackend();
 }
 
-function simulateAnalysisSteps() {
-    const steps = document.querySelectorAll('.loading-steps .step');
-    let currentStep = 0;
-    
-    const stepInterval = setInterval(() => {
-        if (currentStep < steps.length) {
-            // Remove active from previous step
-            if (currentStep > 0) {
-                steps[currentStep - 1].classList.remove('active');
+
+// Ambil data bahan/nutrisi dari backend AKG
+function fetchIngredientsFromBackend() {
+    // Ambil hasil OCR dari gambar yang diupload (dummy: ganti dengan hasil OCR asli)
+    // Misal, gunakan OCR API eksternal atau backend OCR
+    getOCRResultFromImage(uploadedImage)
+        .then(ocr_string => {
+            // Ambil profil user dari currentUserProfile
+            let umur = null;
+            while (umur === null) {
+                const input = prompt('Masukkan umur konsumen (dalam angka, contoh: 7)');
+                if (input === null) {
+                    showAlert('Input umur dibatalkan.', 'error');
+                    loadingContainer.style.display = 'none';
+                    return;
+                }
+                if (/^\d+$/.test(input) && parseInt(input) > 0) {
+                    umur = parseInt(input);
+                } else {
+                    alert('Umur harus berupa angka bulat positif!');
+                }
             }
-            
-            // Add active to current step
-            steps[currentStep].classList.add('active');
-            currentStep++;
-        } else {
-            clearInterval(stepInterval);
-            
-            // Simulate OCR and analysis
-            setTimeout(() => {
-                const extractedIngredients = simulateOCR();
-                performAnalysis(extractedIngredients);
-                
-                // Hide loading, show results
+            let jenis_kelamin = null;
+            while (jenis_kelamin === null) {
+                const input = prompt('Masukkan jenis kelamin (L/P)');
+                if (input === null) {
+                    showAlert('Input jenis kelamin dibatalkan.', 'error');
+                    loadingContainer.style.display = 'none';
+                    return;
+                }
+                if (/^[lLpP]$/.test(input)) {
+                    jenis_kelamin = input.toUpperCase();
+                } else {
+                    alert('Jenis kelamin hanya boleh L atau P!');
+                }
+            }
+            // Ambil kondisi_khusus dari profil user (misal: diabetes, hipertensi, gagal ginjal)
+            let kondisi_khusus = [];
+            if (currentUserProfile && Array.isArray(currentUserProfile.health)) {
+                kondisi_khusus = currentUserProfile.health;
+            }
+            fetch('http://localhost:3001/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ ocr_string, umur, jenis_kelamin, kondisi_khusus })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    showAlert('Gagal analisis: ' + data.error, 'error');
+                    loadingContainer.style.display = 'none';
+                    return;
+                }
+                performAnalysisFromBackend(data);
                 loadingContainer.style.display = 'none';
                 displayResults();
-            }, 1000);
-        }
-    }, 800);
+            })
+            .catch(error => {
+                showAlert('Gagal mengambil data dari backend: ' + error, 'error');
+                loadingContainer.style.display = 'none';
+            });
+        });
 }
+
+// Fungsi untuk mengambil hasil OCR dari gambar (langsung ke backend)
+function getOCRResultFromImage(imageFile) {
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    return fetch('http://localhost:3001/api/ocr', {
+        method: 'POST',
+        body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+        if (data.error || !data.ocr_string) {
+            showAlert('Gagal ekstrak OCR: ' + (data.error || 'Tidak ada hasil'), 'error');
+            throw new Error(data.error || 'OCR gagal');
+        }
+        return data.ocr_string;
+    });
+}
+
+// Proses hasil analisis dari backend
+function performAnalysisFromBackend(backendData) {
+    // Mapping hasil_analisis backend ke format frontend
+    if (!backendData || !Array.isArray(backendData.hasil_analisis)) {
+        currentAnalysisResult = {
+            overallSafety: 'safe',
+            warnings: [{
+                level: 'high',
+                message: 'Format data backend tidak sesuai',
+                icon: 'fas fa-exclamation-triangle',
+                ingredient: ''
+            }],
+            ingredients: [],
+            recommendations: []
+        };
+        return;
+    }
+
+    // Map hasil_analisis ke ingredients
+    const ingredients = backendData.hasil_analisis.map(item => ({
+        name: item.nutrisi,
+        value: item.nilai,
+        unit: item.unit,
+        description: item.keterangan || '',
+        safetyLevel: item.status ? (item.status === 'Tinggi' ? 'caution' : item.status === 'Perlu Dibatasi' ? 'avoid' : 'safe') : 'unknown',
+        category: item.nutrisi,
+        allergens: [],
+    }));
+
+    // Warnings dan recommendations bisa dikembangkan dari hasil_analisis jika ingin
+    currentAnalysisResult = {
+        overallSafety: 'safe',
+        warnings: [],
+        ingredients,
+        recommendations: []
+    };
+}
+
 
 function performAnalysis(ingredientsList) {
     const analysis = {
@@ -277,31 +353,7 @@ function performAnalysis(ingredientsList) {
     let hasHighRisk = false;
     let hasMediumRisk = false;
     
-    // Analyze each ingredient
-    ingredientsList.forEach(ingredientName => {
-        const ingredient = findIngredient(ingredientName);
-        const personalWarnings = checkPersonalWarnings(ingredient);
-        
-        analysis.ingredients.push({
-            ...ingredient,
-            personalWarnings
-        });
-        
-        // Check for warnings based on user profile
-        if (personalWarnings.length > 0) {
-            personalWarnings.forEach(warning => {
-                analysis.warnings.push({
-                    ingredient: ingredient.name,
-                    level: warning.level,
-                    message: warning.message,
-                    icon: warning.icon
-                });
-                
-                if (warning.level === 'high') hasHighRisk = true;
-                if (warning.level === 'medium') hasMediumRisk = true;
-            });
-        }
-    });
+    // Fungsi ini tidak lagi digunakan, proses analisis kini dari backend
     
     // Determine overall safety
     if (hasHighRisk) {
@@ -369,32 +421,9 @@ function checkPersonalWarnings(ingredient) {
         }
     });
     
-    // Check skincare concerns
-    if (profile.skinType && ingredient.skincareInfo.avoidSkinTypes.includes(profile.skinType)) {
-        warnings.push({
-            level: 'medium',
-            message: `Tidak direkomendasikan untuk kulit ${profile.skinType}`,
-            icon: 'fas fa-spa'
-        });
-    }
+    // ...existing code...
     
-    // Check skincare preferences
-    profile.skincare.forEach(pref => {
-        if (pref === 'paraben-free' && ingredient.name.toLowerCase().includes('paraben')) {
-            warnings.push({
-                level: 'medium',
-                message: 'Mengandung paraben',
-                icon: 'fas fa-spa'
-            });
-        }
-        if (pref === 'sulfate-free' && ingredient.name.toLowerCase().includes('sulfate')) {
-            warnings.push({
-                level: 'medium',
-                message: 'Mengandung sulfat',
-                icon: 'fas fa-spa'
-            });
-        }
-    });
+    // ...existing code...
     
     return warnings;
 }
@@ -529,20 +558,31 @@ function displayIngredients(ingredients) {
     ingredients.forEach(ingredient => {
         const ingredientItem = document.createElement('div');
         ingredientItem.className = `ingredient-item ${ingredient.safetyLevel}`;
-        
+
         const tags = [];
         if (ingredient.allergens.length > 0) {
             tags.push(...ingredient.allergens);
         }
         tags.push(ingredient.category);
-        
+
+        // Icon status gizi
+        let statusIcon = '';
+        if (ingredient.safetyLevel === 'safe') {
+            statusIcon = '<i class="fas fa-check-circle"></i>';
+        } else if (ingredient.safetyLevel === 'caution') {
+            statusIcon = '<i class="fas fa-exclamation-triangle"></i>';
+        } else if (ingredient.safetyLevel === 'avoid') {
+            statusIcon = '<i class="fas fa-times-circle"></i>';
+        }
+
         ingredientItem.innerHTML = `
             <div class="ingredient-header">
                 <span class="ingredient-name">${ingredient.name}</span>
                 <span class="ingredient-status ${ingredient.safetyLevel}">
+                    ${statusIcon}
                     ${ingredient.safetyLevel === 'safe' ? 'Aman' : 
-                      ingredient.safetyLevel === 'caution' ? 'Hati-hati' : 
-                      ingredient.safetyLevel === 'avoid' ? 'Hindari' : 'Tidak Diketahui'}
+                      ingredient.safetyLevel === 'caution' ? 'Melebihi' : 
+                      ingredient.safetyLevel === 'avoid' ? 'Kurang' : 'Tidak Diketahui'}
                 </span>
             </div>
             <div class="ingredient-description">${ingredient.description}</div>
@@ -550,7 +590,7 @@ function displayIngredients(ingredients) {
                 ${tags.map(tag => `<span class="ingredient-tag">${tag}</span>`).join('')}
             </div>
         `;
-        
+
         ingredientsList.appendChild(ingredientItem);
     });
 }
